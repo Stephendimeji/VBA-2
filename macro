@@ -1,0 +1,229 @@
+Private Sub Workbook_Open()
+    Application.OnTime TimeValue("14:49:00"), "gethtmldocument"
+End Sub
+
+Sub gethtmldocument()
+Dim ws As Worksheet
+Dim qt As QueryTable
+Dim IE As Object
+Dim HTMLDoc As MSHTML.HTMLDocument
+Dim HTMLInput As MSHTML.IHTMLElement
+Dim HTMLButtons As MSHTML.IHTMLElementCollection
+Dim HTMLButton As MSHTML.IHTMLElement
+Dim HTMLButton2 As MSHTML.IHTMLElement
+Dim HTMLA As MSHTML.IHTMLElement
+Dim HTMLB As MSHTML.IHTMLElement
+Dim HTMLbs As MSHTML.IHTMLElementCollection
+Dim HTMLbfind As MSHTML.IHTMLElementCollection
+Dim i As Long
+Set IE = CreateObject("Internetexplorer.application")
+
+IE.Visible = Visible
+IE.navigate "http://***************"
+
+Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+
+Application.Wait (Now() + TimeValue("0:0:10"))
+Set HTMLDoc = IE.document
+
+Set HTMLInput = HTMLDoc.getElementById("txtUserName")
+HTMLInput.Value = "*****"
+
+Set HTMLInput = HTMLDoc.getElementById("txtPassword")
+HTMLInput.Value = "***********"
+
+Set HTMLA = HTMLDoc.getElementById("ButtonLogin")
+HTMLA.Click
+
+Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+Application.Wait (Now() + TimeValue("0:0:10"))
+Set HTMLB = HTMLDoc.getElementById("ctl00_maincontent_ddlCategory")
+'Debug.Print HTMLB.Options.Length
+
+For i = 1 To HTMLB.Options.Length
+    If HTMLB.Options(i).Text = "COLD FOOD/FINISHED PRODUCTS" Then
+    HTMLB.selectedIndex = i
+    Exit For
+    End If
+ Next i
+ 
+ Set HTMLButton = HTMLDoc.getElementById("ctl00_maincontent_btnSearch")
+    HTMLButton.Click
+ Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+Application.Wait (Now() + TimeValue("0:0:10"))
+
+ProcessHTMLPage HTMLDoc
+
+End Sub
+
+Sub ProcessHTMLPage(HTMLPage As MSHTML.HTMLDocument)
+ Dim HTMLTable As MSHTML.IHTMLElement
+ Dim HTMLTables As MSHTML.IHTMLElementCollection
+ Dim HTMLRow As MSHTML.IHTMLElement
+ Dim RowNum As Long, ColNum As Integer
+ Dim HTMLCell As MSHTML.IHTMLElement
+ 
+ Set HTMLTables = HTMLPage.getElementsByTagName("table")
+ 
+ For Each HTMLTable In HTMLTables
+Worksheets.Add
+ Range("A1").Value = HTMLTable.className
+ Range("B1").Value = Now
+ ActiveSheet.Name = Format(Date, "DD-MM-YY")
+ RowNum = 2
+ 
+ For Each HTMLRow In HTMLTable.getElementsByTagName("tr")
+  'Debug.Print vbTab & HTMLRow.innerText
+ ColNum = 1
+ For Each HTMLCell In HTMLRow.Children
+        Cells(RowNum, ColNum) = HTMLCell.innerText
+        ColNum = ColNum + 1
+    Next HTMLCell
+    
+    RowNum = RowNum + 1
+ Next HTMLRow
+ 
+ Next HTMLTable
+ 
+ Call gethtmldocument2
+End Sub
+
+Sub gethtmldocument2()
+Dim ws As Worksheet
+Dim qt As QueryTable
+Dim IE As Object
+Dim HTMLDoc As MSHTML.HTMLDocument
+Dim HTMLInput As MSHTML.IHTMLElement
+Dim HTMLButtons As MSHTML.IHTMLElementCollection
+Dim HTMLButton As MSHTML.IHTMLElement
+Dim HTMLButton2 As MSHTML.IHTMLElement
+Dim HTMLA As MSHTML.IHTMLElement
+Dim HTMLB As MSHTML.IHTMLElement
+Dim HTMLbs As MSHTML.IHTMLElementCollection
+Dim HTMLbfind As MSHTML.IHTMLElementCollection
+Dim element As MSHTML.IHTMLElement
+Dim elements As MSHTML.IHTMLElementCollection
+Dim element1 As MSHTML.IHTMLElement
+Dim i As Long
+Set IE = CreateObject("Internetexplorer.application")
+
+IE.Visible = True
+IE.navigate "http://192.168.1.46:8084/"
+
+Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+
+Application.Wait (Now() + TimeValue("0:0:10"))
+Set HTMLDoc = IE.document
+
+Set HTMLInput = HTMLDoc.getElementById("txtUserName")
+HTMLInput.Value = "**********"
+
+Set HTMLInput = HTMLDoc.getElementById("txtPassword")
+HTMLInput.Value = "**********"
+
+Set HTMLA = HTMLDoc.getElementById("ButtonLogin")
+HTMLA.Click
+
+Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+Application.Wait (Now() + TimeValue("0:0:10"))
+Set HTMLB = HTMLDoc.getElementById("ctl00_maincontent_ddlCategory")
+'Debug.Print HTMLB.Options.Length
+
+For i = 1 To HTMLB.Options.Length
+    If HTMLB.Options(i).Text = "COLD FOOD/FINISHED PRODUCTS" Then
+    HTMLB.selectedIndex = i
+    Exit For
+    End If
+ Next i
+ 
+ Set HTMLButton = HTMLDoc.getElementById("ctl00_maincontent_btnSearch")
+    HTMLButton.Click
+ Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+Application.Wait (Now() + TimeValue("0:0:10"))
+
+ Set element = HTMLDoc.getElementsByClassName("pagination")(0)
+ Set elements = element.getElementsByTagName("a")
+ 'Debug.Print elements.Length
+ 
+ 
+ For Each element1 In elements
+ If element1.innerText = "2" Then
+ element1.Click
+ End If
+ Next
+ 
+  Do While IE.readyState <> READYSTATE_COMPLETE Or IE.Busy = True
+Loop
+Application.Wait (Now() + TimeValue("0:0:10"))
+ 
+ProcessHTMLPage1 HTMLDoc
+
+ 
+End Sub
+
+Sub ProcessHTMLPage1(HTMLPage1 As MSHTML.HTMLDocument)
+ Dim HTMLTable As MSHTML.IHTMLElement
+ Dim HTMLTables As MSHTML.IHTMLElementCollection
+ Dim HTMLRow As MSHTML.IHTMLElement
+ Dim RowNum As Long, ColNum As Integer
+ Dim HTMLCell As MSHTML.IHTMLElement
+ 
+ Set HTMLTables = HTMLPage1.getElementsByTagName("table")
+ 
+ For Each HTMLTable In HTMLTables
+ActiveSheet.Activate
+ 
+ RowNum = 60
+ 
+ For Each HTMLRow In HTMLTable.getElementsByTagName("tr")
+  'Debug.Print vbTab & HTMLRow.innerText
+ ColNum = 1
+ For Each HTMLCell In HTMLRow.Children
+        Cells(RowNum, ColNum) = HTMLCell.innerText
+        ColNum = ColNum + 1
+    Next HTMLCell
+    
+    RowNum = RowNum + 1
+ Next HTMLRow
+ 
+ Next HTMLTable
+ 
+ ActiveWorkbook.Save
+ Call basicemail
+End Sub
+
+Sub basicemail()
+
+Dim olapp As Outlook.Application
+Dim olemail As Outlook.MailItem
+Set olapp = New Outlook.Application
+Set olemail = olapp.CreateItem(olMailItem)
+
+
+With olemail
+    .BodyFormat = olFormatHTML
+    .display
+    .HTMLBody = "Please find attahced the stock report for TAFD " & Date & "<BR>" & .HTMLBody
+    .Attachments.Add "C:\Users\******\.xlsm"
+    .To = "********@*****.com"
+    .Subject = "STOCK REPORT " & Date
+    .send
+End With
+
+End Sub
+
+
+
+
+
+
+
+
+
+
